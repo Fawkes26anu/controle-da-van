@@ -1,0 +1,1149 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Controle da Van</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    background: #101318;
+    color: #f1f5f9;
+    font-family: Arial, sans-serif;
+}
+
+.container {
+    max-width: 520px;
+    margin: auto;
+    padding: 20px;
+}
+
+h1 {
+    text-align: center;
+    margin: 8px 0 4px;
+    font-size: 28px;
+}
+
+.subtitle {
+    text-align: center;
+    color: #aab4c3;
+    margin-bottom: 20px;
+}
+
+.card {
+    background: #1b222c;
+    border-radius: 18px;
+    padding: 18px;
+    margin-bottom: 16px;
+}
+
+label {
+    display: block;
+    color: #aab4c3;
+    margin: 12px 0 6px;
+}
+
+input,
+select {
+    width: 100%;
+    padding: 13px;
+    border: 1px solid #394454;
+    border-radius: 10px;
+    background: #101318;
+    color: white;
+    font-size: 16px;
+}
+
+.summary {
+    text-align: center;
+    color: #6ee7b7;
+    font-size: 22px;
+    font-weight: bold;
+    padding-bottom: 18px;
+}
+
+.week,
+.calendar {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 6px;
+}
+
+.week div {
+    text-align: center;
+    color: #94a3b8;
+    padding: 5px;
+}
+
+.day {
+    border: 0;
+    border-radius: 10px;
+    background: #111821;
+    color: white;
+    min-height: 48px;
+    font-size: 15px;
+    cursor: pointer;
+}
+
+.day.selected {
+    background: #16a36b;
+    font-weight: bold;
+}
+
+.day.empty {
+    visibility: hidden;
+}
+
+.save {
+    width: 100%;
+    padding: 14px;
+    border: 0;
+    border-radius: 10px;
+    background: #16a36b;
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 16px;
+}
+
+.save:hover {
+    background: #138b5b;
+}
+
+.save:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.clear {
+    width: 100%;
+    padding: 13px;
+    border: 0;
+    border-radius: 10px;
+    background: #303946;
+    color: white;
+    font-size: 15px;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+.status {
+    text-align: center;
+    margin-top: 12px;
+    font-size: 14px;
+    min-height: 20px;
+}
+
+.note {
+    text-align: center;
+    color: #718096;
+    font-size: 12px;
+    margin-top: 14px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>🚐 Controle da Van</h1>
+
+    <p class="subtitle">
+        Marque os dias em que você utilizou a van.
+    </p>
+
+    <div class="card">
+
+        <label>Nome</label>
+
+        <input
+            id="usuario"
+            type="text"
+            placeholder="Digite seu nome"
+        >
+
+        <label>Valor da van por dia</label>
+
+        <input
+            id="valor"
+            type="number"
+            step="0.01"
+            min="0"
+            placeholder="Ex.: 10,00"
+        >
+
+        <label>Mês</label>
+
+        <select id="mes"></select>
+
+        <label>Ano</label>
+
+        <input
+            id="ano"
+            type="number"
+            min="2000"
+            max="2100"
+        >
+
+    </div>
+
+    <div class="card">
+
+        <div id="resumo" class="summary">
+            0 dias • R$ 0,00
+        </div>
+
+        <div class="week">
+            <div>D</div>
+            <div>S</div>
+            <div>T</div>
+            <div>Q</div>
+            <div>Q</div>
+            <div>S</div>
+            <div>S</div>
+        </div>
+
+        <div id="calendario" class="calendar"></div>
+
+        <button id="salvar" class="save">
+            Salvar no Supabase
+        </button>
+
+        <div id="status" class="status"></div>
+
+    </div>
+
+    <button id="limpar" class="clear">
+        Limpar marcações deste mês
+    </button>
+
+    <div class="note">
+        Os dados salvos ficam registrados no sistema.
+    </div>
+
+</div>
+
+<script>
+
+/* =====================================
+   CONFIGURAÇÃO DO SUPABASE
+   ===================================== */
+
+const SUPABASE_URL =
+    "https://ioyytfxplwtwtejtvwss.supabase.co/rest/v1/";
+
+const SUPABASE_ANON_KEY =
+    "sb_publishable_Anm5GDdl4ajPU8GlVaaRRQ_A9ioBcMn";
+
+
+/* =====================================
+   MESES
+   ===================================== */
+
+const meses = [
+    "Janeiro",
+    "Fevereiro",
+    "Março",
+    "Abril",
+    "Maio",
+    "Junho",
+    "Julho",
+    "Agosto",
+    "Setembro",
+    "Outubro",
+    "Novembro",
+    "Dezembro"
+];
+
+
+/* =====================================
+   ELEMENTOS
+   ===================================== */
+
+const usuario =
+    document.getElementById("usuario");
+
+const valor =
+    document.getElementById("valor");
+
+const mes =
+    document.getElementById("mes");
+
+const ano =
+    document.getElementById("ano");
+
+const calendario =
+    document.getElementById("calendario");
+
+const resumo =
+    document.getElementById("resumo");
+
+const limpar =
+    document.getElementById("limpar");
+
+const salvar =
+    document.getElementById("salvar");
+
+const status =
+    document.getElementById("status");
+
+
+/* =====================================
+   MESES
+   ===================================== */
+
+meses.forEach((nome, i) => {
+
+    const opcao =
+        document.createElement("option");
+
+    opcao.value = i + 1;
+
+    opcao.textContent = nome;
+
+    mes.appendChild(opcao);
+
+});
+
+
+/* =====================================
+   DATA ATUAL
+   ===================================== */
+
+const agora = new Date();
+
+mes.value =
+    agora.getMonth() + 1;
+
+ano.value =
+    agora.getFullYear();
+
+
+/* =====================================
+   DADOS LOCAIS
+   ===================================== */
+
+usuario.value =
+    localStorage.getItem("van_usuario") || "";
+
+valor.value =
+    localStorage.getItem("van_valor") || "";
+
+
+/* =====================================
+   DIAS ATUAIS
+   ===================================== */
+
+let diasAtuais = new Set();
+
+
+/* =====================================
+   FORMATAÇÃO DE MOEDA
+   ===================================== */
+
+function moeda(numero) {
+
+    return numero.toLocaleString(
+        "pt-BR",
+        {
+            style: "currency",
+            currency: "BRL"
+        }
+    );
+
+}
+
+
+/* =====================================
+   CARREGAR REGISTRO DO SUPABASE
+   ===================================== */
+
+async function carregarDoSupabase() {
+
+    const nome =
+        usuario.value.trim();
+
+    const anoSelecionado =
+        parseInt(ano.value);
+
+    const mesSelecionado =
+        parseInt(mes.value);
+
+
+    /* Se ainda não houver nome,
+       não faz consulta */
+
+    if (!nome) {
+
+        diasAtuais = new Set();
+
+        renderizar();
+
+        return;
+
+    }
+
+
+    status.textContent =
+        "Carregando registro...";
+
+
+    try {
+
+        const busca =
+            `${SUPABASE_URL}` +
+            `van_registros` +
+            `?usuario=eq.${encodeURIComponent(nome)}` +
+            `&ano=eq.${anoSelecionado}` +
+            `&mes=eq.${mesSelecionado}` +
+            `&select=valor_dia,dias`;
+
+
+        const resposta =
+            await fetch(
+                busca,
+                {
+                    method: "GET",
+
+                    headers: {
+                        "apikey":
+                            SUPABASE_ANON_KEY,
+
+                        "Authorization":
+                            `Bearer ${SUPABASE_ANON_KEY}`
+                    }
+                }
+            );
+
+
+        if (!resposta.ok) {
+
+            const erro =
+                await resposta.text();
+
+            throw new Error(
+                erro ||
+                "Erro ao consultar o Supabase."
+            );
+
+        }
+
+
+        const registros =
+            await resposta.json();
+
+
+        /* ============================
+           REGISTRO ENCONTRADO
+           ============================ */
+
+        if (registros.length > 0) {
+
+            const registro =
+                registros[0];
+
+
+            /* Carrega valor por dia */
+
+            if (
+                registro.valor_dia !== null &&
+                registro.valor_dia !== undefined
+            ) {
+
+                valor.value =
+                    registro.valor_dia;
+
+                localStorage.setItem(
+                    "van_valor",
+                    registro.valor_dia
+                );
+
+            }
+
+
+            /* Carrega dias */
+
+            if (
+                Array.isArray(
+                    registro.dias
+                )
+            ) {
+
+                diasAtuais =
+                    new Set(
+                        registro.dias.map(
+                            Number
+                        )
+                    );
+
+            } else {
+
+                diasAtuais =
+                    new Set();
+
+            }
+
+
+            status.textContent =
+                "Registro carregado.";
+
+        }
+
+
+        /* ============================
+           NENHUM REGISTRO
+           ============================ */
+
+        else {
+
+            diasAtuais =
+                new Set();
+
+            status.textContent =
+                "";
+
+        }
+
+
+        renderizar();
+
+    }
+
+    catch (erro) {
+
+        console.error(
+            "Erro ao carregar:",
+            erro
+        );
+
+        diasAtuais =
+            new Set();
+
+        status.textContent =
+            "Erro ao carregar o registro.";
+
+        renderizar();
+
+    }
+
+}
+
+
+/* =====================================
+   RENDERIZAR CALENDÁRIO
+   ===================================== */
+
+function renderizar() {
+
+    const anoSelecionado =
+        parseInt(ano.value) ||
+        agora.getFullYear();
+
+    const mesSelecionado =
+        parseInt(mes.value) - 1;
+
+
+    calendario.innerHTML = "";
+
+
+    const primeiroDia =
+        new Date(
+            anoSelecionado,
+            mesSelecionado,
+            1
+        ).getDay();
+
+
+    const quantidadeDias =
+        new Date(
+            anoSelecionado,
+            mesSelecionado + 1,
+            0
+        ).getDate();
+
+
+    /* Espaços antes do primeiro dia */
+
+    for (
+        let i = 0;
+        i < primeiroDia;
+        i++
+    ) {
+
+        const vazio =
+            document.createElement("button");
+
+        vazio.className =
+            "day empty";
+
+        vazio.disabled = true;
+
+        calendario.appendChild(vazio);
+
+    }
+
+
+    /* Dias do mês */
+
+    for (
+        let dia = 1;
+        dia <= quantidadeDias;
+        dia++
+    ) {
+
+        const botao =
+            document.createElement("button");
+
+        botao.className =
+            "day";
+
+        botao.textContent =
+            dia;
+
+
+        if (
+            diasAtuais.has(dia)
+        ) {
+
+            botao.classList.add(
+                "selected"
+            );
+
+        }
+
+
+        botao.onclick =
+            function() {
+
+                if (
+                    diasAtuais.has(dia)
+                ) {
+
+                    diasAtuais.delete(dia);
+
+                } else {
+
+                    diasAtuais.add(dia);
+
+                }
+
+
+                renderizar();
+
+            };
+
+
+        calendario.appendChild(botao);
+
+    }
+
+
+    /* Total */
+
+    const valorDia =
+        parseFloat(
+            String(valor.value)
+                .replace(",", ".")
+        ) || 0;
+
+
+    const total =
+        diasAtuais.size * valorDia;
+
+
+    resumo.textContent =
+        `${diasAtuais.size} dias • ${moeda(total)}`;
+
+}
+
+
+/* =====================================
+   NOME
+   ===================================== */
+
+usuario.addEventListener(
+    "input",
+    function() {
+
+        localStorage.setItem(
+            "van_usuario",
+            usuario.value
+        );
+
+    }
+);
+
+
+/* =====================================
+   NOME - AO SAIR DO CAMPO
+   ===================================== */
+
+usuario.addEventListener(
+    "change",
+    carregarDoSupabase
+);
+
+
+/* =====================================
+   VALOR
+   ===================================== */
+
+valor.addEventListener(
+    "input",
+    function() {
+
+        localStorage.setItem(
+            "van_valor",
+            valor.value
+        );
+
+        renderizar();
+
+    }
+);
+
+
+/* =====================================
+   MÊS
+   ===================================== */
+
+mes.addEventListener(
+    "change",
+    carregarDoSupabase
+);
+
+
+/* =====================================
+   ANO
+   ===================================== */
+
+ano.addEventListener(
+    "change",
+    carregarDoSupabase
+);
+
+
+/* =====================================
+   SALVAR NO SUPABASE
+   ===================================== */
+
+salvar.addEventListener(
+    "click",
+    async function() {
+
+        const nome =
+            usuario.value.trim();
+
+        const anoSelecionado =
+            parseInt(ano.value);
+
+        const mesSelecionado =
+            parseInt(mes.value);
+
+        const valorDia =
+            parseFloat(
+                String(valor.value)
+                    .replace(",", ".")
+            ) || 0;
+
+        const dias =
+            [...diasAtuais]
+                .sort(
+                    (a, b) => a - b
+                );
+
+
+        /* Validações */
+
+        if (!nome) {
+
+            status.textContent =
+                "Digite seu nome.";
+
+            return;
+
+        }
+
+
+        if (valorDia <= 0) {
+
+            status.textContent =
+                "Digite o valor da van por dia.";
+
+            return;
+
+        }
+
+
+        if (dias.length === 0) {
+
+            status.textContent =
+                "Marque pelo menos um dia.";
+
+            return;
+
+        }
+
+
+        status.textContent =
+            "Salvando...";
+
+        salvar.disabled = true;
+
+
+        try {
+
+            /* ============================
+               PROCURAR REGISTRO EXISTENTE
+               ============================ */
+
+            const busca =
+                `${SUPABASE_URL}` +
+                `van_registros` +
+                `?usuario=eq.${encodeURIComponent(nome)}` +
+                `&ano=eq.${anoSelecionado}` +
+                `&mes=eq.${mesSelecionado}` +
+                `&select=id`;
+
+
+            const respostaBusca =
+                await fetch(
+                    busca,
+                    {
+                        method: "GET",
+
+                        headers: {
+
+                            "apikey":
+                                SUPABASE_ANON_KEY,
+
+                            "Authorization":
+                                `Bearer ${SUPABASE_ANON_KEY}`
+
+                        }
+
+                    }
+                );
+
+
+            if (!respostaBusca.ok) {
+
+                const erro =
+                    await respostaBusca.text();
+
+                throw new Error(
+                    erro ||
+                    "Erro ao consultar o Supabase."
+                );
+
+            }
+
+
+            const existentes =
+                await respostaBusca.json();
+
+
+            /* ============================
+               DADOS PARA SALVAR
+               ============================ */
+
+            const dados = {
+
+                usuario:
+                    nome,
+
+                ano:
+                    anoSelecionado,
+
+                mes:
+                    mesSelecionado,
+
+                valor_dia:
+                    valorDia,
+
+                dias:
+                    dias
+
+            };
+
+
+            /* ============================
+               ATUALIZAR
+               ============================ */
+
+            if (
+                existentes.length > 0
+            ) {
+
+                const id =
+                    existentes[0].id;
+
+
+                const respostaAtualizacao =
+                    await fetch(
+                        `${SUPABASE_URL}van_registros?id=eq.${id}`,
+                        {
+
+                            method: "PATCH",
+
+                            headers: {
+
+                                "apikey":
+                                    SUPABASE_ANON_KEY,
+
+                                "Authorization":
+                                    `Bearer ${SUPABASE_ANON_KEY}`,
+
+                                "Content-Type":
+                                    "application/json",
+
+                                "Prefer":
+                                    "return=minimal"
+
+                            },
+
+                            body:
+                                JSON.stringify(
+                                    dados
+                                )
+
+                        }
+                    );
+
+
+                if (
+                    !respostaAtualizacao.ok
+                ) {
+
+                    const erro =
+                        await respostaAtualizacao.text();
+
+                    throw new Error(
+                        erro ||
+                        "Erro ao atualizar o registro."
+                    );
+
+                }
+
+
+                status.textContent =
+                    "Registro atualizado com sucesso!";
+
+            }
+
+
+            /* ============================
+               CRIAR NOVO
+               ============================ */
+
+            else {
+
+                const respostaCriacao =
+                    await fetch(
+                        `${SUPABASE_URL}van_registros`,
+                        {
+
+                            method: "POST",
+
+                            headers: {
+
+                                "apikey":
+                                    SUPABASE_ANON_KEY,
+
+                                "Authorization":
+                                    `Bearer ${SUPABASE_ANON_KEY}`,
+
+                                "Content-Type":
+                                    "application/json",
+
+                                "Prefer":
+                                    "return=minimal"
+
+                            },
+
+                            body:
+                                JSON.stringify(
+                                    dados
+                                )
+
+                        }
+                    );
+
+
+                if (
+                    !respostaCriacao.ok
+                ) {
+
+                    const erro =
+                        await respostaCriacao.text();
+
+                    throw new Error(
+                        erro ||
+                        "Erro ao criar o registro."
+                    );
+
+                }
+
+
+                status.textContent =
+                    "Registro salvo com sucesso!";
+
+            }
+
+        }
+
+        catch (erro) {
+
+            console.error(
+                "Erro:",
+                erro
+            );
+
+            status.textContent =
+                "Erro ao salvar. Veja o Console (F12).";
+
+        }
+
+        finally {
+
+            salvar.disabled =
+                false;
+
+        }
+
+    }
+);
+
+
+/* =====================================
+   LIMPAR
+   ===================================== */
+
+limpar.addEventListener(
+    "click",
+    async function() {
+
+        if (
+            !confirm(
+                "Limpar as marcações deste mês?"
+            )
+        ) {
+
+            return;
+
+        }
+
+
+        const nome =
+            usuario.value.trim();
+
+        const anoSelecionado =
+            parseInt(ano.value);
+
+        const mesSelecionado =
+            parseInt(mes.value);
+
+
+        if (!nome) {
+
+            status.textContent =
+                "Digite seu nome.";
+
+            return;
+
+        }
+
+
+        status.textContent =
+            "Limpando...";
+
+
+        try {
+
+            const busca =
+                `${SUPABASE_URL}` +
+                `van_registros` +
+                `?usuario=eq.${encodeURIComponent(nome)}` +
+                `&ano=eq.${anoSelecionado}` +
+                `&mes=eq.${mesSelecionado}`;
+
+
+            const resposta =
+                await fetch(
+                    busca,
+                    {
+
+                        method: "DELETE",
+
+                        headers: {
+
+                            "apikey":
+                                SUPABASE_ANON_KEY,
+
+                            "Authorization":
+                                `Bearer ${SUPABASE_ANON_KEY}`
+
+                        }
+
+                    }
+                );
+
+
+            if (!resposta.ok) {
+
+                const erro =
+                    await resposta.text();
+
+                throw new Error(
+                    erro ||
+                    "Erro ao excluir."
+                );
+
+            }
+
+
+            diasAtuais =
+                new Set();
+
+
+            renderizar();
+
+
+            status.textContent =
+                "Registro excluído com sucesso!";
+
+        }
+
+        catch (erro) {
+
+            console.error(
+                "Erro:",
+                erro
+            );
+
+            status.textContent =
+                "Erro ao excluir o registro.";
+
+        }
+
+    }
+);
+
+
+/* =====================================
+   INICIAR
+   ===================================== */
+
+renderizar();
+
+</script>
+
+</body>
+</html>
