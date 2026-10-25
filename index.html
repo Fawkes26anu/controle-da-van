@@ -4,1146 +4,214 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Controle da Van</title>
-
 <style>
-* {
-    box-sizing: border-box;
-}
-
-body {
-    margin: 0;
-    background: #101318;
-    color: #f1f5f9;
-    font-family: Arial, sans-serif;
-}
-
-.container {
-    max-width: 520px;
-    margin: auto;
-    padding: 20px;
-}
-
-h1 {
-    text-align: center;
-    margin: 8px 0 4px;
-    font-size: 28px;
-}
-
-.subtitle {
-    text-align: center;
-    color: #aab4c3;
-    margin-bottom: 20px;
-}
-
-.card {
-    background: #1b222c;
-    border-radius: 18px;
-    padding: 18px;
-    margin-bottom: 16px;
-}
-
-label {
-    display: block;
-    color: #aab4c3;
-    margin: 12px 0 6px;
-}
-
-input,
-select {
-    width: 100%;
-    padding: 13px;
-    border: 1px solid #394454;
-    border-radius: 10px;
-    background: #101318;
-    color: white;
-    font-size: 16px;
-}
-
-.summary {
-    text-align: center;
-    color: #6ee7b7;
-    font-size: 22px;
-    font-weight: bold;
-    padding-bottom: 18px;
-}
-
-.week,
-.calendar {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 6px;
-}
-
-.week div {
-    text-align: center;
-    color: #94a3b8;
-    padding: 5px;
-}
-
-.day {
-    border: 0;
-    border-radius: 10px;
-    background: #111821;
-    color: white;
-    min-height: 48px;
-    font-size: 15px;
-    cursor: pointer;
-}
-
-.day.selected {
-    background: #16a36b;
-    font-weight: bold;
-}
-
-.day.empty {
-    visibility: hidden;
-}
-
-.save {
-    width: 100%;
-    padding: 14px;
-    border: 0;
-    border-radius: 10px;
-    background: #16a36b;
-    color: white;
-    font-size: 16px;
-    font-weight: bold;
-    cursor: pointer;
-    margin-top: 16px;
-}
-
-.save:hover {
-    background: #138b5b;
-}
-
-.save:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-}
-
-.clear {
-    width: 100%;
-    padding: 13px;
-    border: 0;
-    border-radius: 10px;
-    background: #303946;
-    color: white;
-    font-size: 15px;
-    cursor: pointer;
-    margin-top: 10px;
-}
-
-.status {
-    text-align: center;
-    margin-top: 12px;
-    font-size: 14px;
-    min-height: 20px;
-}
-
-.note {
-    text-align: center;
-    color: #718096;
-    font-size: 12px;
-    margin-top: 14px;
-}
+*{box-sizing:border-box}
+body{margin:0;background:#101318;color:#f1f5f9;font-family:Arial,sans-serif}
+.container{max-width:560px;margin:auto;padding:20px}
+h1{text-align:center;margin:8px 0 4px;font-size:28px}
+.subtitle{text-align:center;color:#aab4c3;margin-bottom:20px}
+.card{background:#1b222c;border-radius:18px;padding:18px;margin-bottom:16px}
+label{display:block;color:#aab4c3;margin:12px 0 6px}
+input,select{width:100%;padding:13px;border:1px solid #394454;border-radius:10px;background:#101318;color:white;font-size:16px}
+button{cursor:pointer}
+.primary{width:100%;padding:14px;border:0;border-radius:10px;background:#16a36b;color:white;font-size:16px;font-weight:bold;margin-top:16px}
+.primary:hover{background:#138b5b}
+.primary:disabled{opacity:.6;cursor:not-allowed}
+.secondary{width:100%;padding:13px;border:0;border-radius:10px;background:#303946;color:white;font-size:15px;margin-top:10px}
+.summary{text-align:center;color:#6ee7b7;font-size:22px;font-weight:bold;padding-bottom:18px}
+.week,.calendar{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.week div{text-align:center;color:#94a3b8;padding:5px}
+.day{border:0;border-radius:10px;background:#111821;color:white;min-height:48px;font-size:15px}
+.day.selected{background:#16a36b;font-weight:bold}
+.day.empty{visibility:hidden}
+.status{text-align:center;margin-top:12px;font-size:14px;min-height:20px;overflow-wrap:anywhere}
+.note{text-align:center;color:#718096;font-size:12px;margin-top:14px}
+.hidden{display:none!important}
+.topline{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}
+.topline .secondary{width:auto;margin:0;padding:10px 12px}
+.small{font-size:13px;color:#aab4c3;overflow-wrap:anywhere}
+h2{font-size:20px;margin:0 0 8px}
 </style>
 </head>
-
 <body>
-
 <div class="container">
+  <h1>🚐 Controle da Van</h1>
+  <p class="subtitle">Marque os dias em que você utilizou a van.</p>
 
-    <h1>🚐 Controle da Van</h1>
+  <section id="loginCard" class="card">
+    <h2>Entrar</h2>
+    <p class="small">Entre com o e-mail e a senha cadastrados no sistema.</p>
+    <label for="email">E-mail</label>
+    <input id="email" type="email" autocomplete="username" placeholder="seuemail@exemplo.com">
+    <label for="senha">Senha</label>
+    <input id="senha" type="password" autocomplete="current-password" placeholder="Sua senha">
+    <button id="entrar" class="primary">Entrar</button>
+    <div id="loginStatus" class="status" role="status"></div>
+    <p class="note">A conta deve ser criada no Supabase pelo administrador.</p>
+  </section>
 
-    <p class="subtitle">
-        Marque os dias em que você utilizou a van.
-    </p>
-
+  <section id="appArea" class="hidden">
+    <div class="topline">
+      <div class="small">Conectado como <strong id="emailLogado"></strong></div>
+      <button id="sair" class="secondary">Sair</button>
+    </div>
     <div class="card">
-
-        <label>Nome</label>
-
-        <input
-            id="usuario"
-            type="text"
-            placeholder="Digite seu nome"
-        >
-
-        <label>Valor da van por dia</label>
-
-        <input
-            id="valor"
-            type="number"
-            step="0.01"
-            min="0"
-            placeholder="Ex.: 10,00"
-        >
-
-        <label>Mês</label>
-
-        <select id="mes"></select>
-
-        <label>Ano</label>
-
-        <input
-            id="ano"
-            type="number"
-            min="2000"
-            max="2100"
-        >
-
+      <label for="usuario">Nome para identificação</label>
+      <input id="usuario" type="text" placeholder="Digite seu nome">
+      <label for="valor">Valor da van por dia (R$)</label>
+      <input id="valor" type="number" step="0.01" min="0" placeholder="Ex.: 10,00">
+      <label for="mes">Mês</label>
+      <select id="mes"></select>
+      <label for="ano">Ano</label>
+      <input id="ano" type="number" min="2000" max="2100">
     </div>
-
     <div class="card">
-
-        <div id="resumo" class="summary">
-            0 dias • R$ 0,00
-        </div>
-
-        <div class="week">
-            <div>D</div>
-            <div>S</div>
-            <div>T</div>
-            <div>Q</div>
-            <div>Q</div>
-            <div>S</div>
-            <div>S</div>
-        </div>
-
-        <div id="calendario" class="calendar"></div>
-
-        <button id="salvar" class="save">
-            Salvar no Supabase
-        </button>
-
-        <div id="status" class="status"></div>
-
+      <div id="resumo" class="summary">0 dias • R$ 0,00</div>
+      <div class="week"><div>D</div><div>S</div><div>T</div><div>Q</div><div>Q</div><div>S</div><div>S</div></div>
+      <div id="calendario" class="calendar"></div>
+      <button id="salvar" class="primary">Salvar registro</button>
+      <div id="status" class="status" role="status"></div>
     </div>
-
-    <button id="limpar" class="clear">
-        Limpar marcações deste mês
-    </button>
-
-    <div class="note">
-        Os dados salvos ficam registrados no sistema.
-    </div>
-
+    <button id="limpar" class="secondary">Limpar marcações deste mês</button>
+    <div class="note">Os registros são associados à conta autenticada.</div>
+  </section>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
+(() => {
+  // A chave publishable/anon é feita para uso no navegador. A segurança depende das políticas RLS.
+  const SUPABASE_URL = "https://ioyytfxplwtwtejtvwss.supabase.co";
+  const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_Anm5GDdl4ajPU8GlVaaRRQ_A9ioBcMn";
+  const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
 
-/* =====================================
-   CONFIGURAÇÃO DO SUPABASE
-   ===================================== */
+  const $ = id => document.getElementById(id);
+  const meses = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
+  meses.forEach((nome,i) => { const o=document.createElement("option"); o.value=i+1; o.textContent=nome; $("mes").appendChild(o); });
+  const agora = new Date();
+  $("mes").value = String(agora.getMonth()+1);
+  $("ano").value = agora.getFullYear();
 
-const SUPABASE_URL =
-    "https://ioyytfxplwtwtejtvwss.supabase.co/rest/v1/";
+  let session = null;
+  let diasAtuais = new Set();
+  let carregando = false;
 
-const SUPABASE_ANON_KEY =
-    "sb_publishable_Anm5GDdl4ajPU8GlVaaRRQ_A9ioBcMn";
-
-
-/* =====================================
-   MESES
-   ===================================== */
-
-const meses = [
-    "Janeiro",
-    "Fevereiro",
-    "Março",
-    "Abril",
-    "Maio",
-    "Junho",
-    "Julho",
-    "Agosto",
-    "Setembro",
-    "Outubro",
-    "Novembro",
-    "Dezembro"
-];
-
-
-/* =====================================
-   ELEMENTOS
-   ===================================== */
-
-const usuario =
-    document.getElementById("usuario");
-
-const valor =
-    document.getElementById("valor");
-
-const mes =
-    document.getElementById("mes");
-
-const ano =
-    document.getElementById("ano");
-
-const calendario =
-    document.getElementById("calendario");
-
-const resumo =
-    document.getElementById("resumo");
-
-const limpar =
-    document.getElementById("limpar");
-
-const salvar =
-    document.getElementById("salvar");
-
-const status =
-    document.getElementById("status");
-
-
-/* =====================================
-   MESES
-   ===================================== */
-
-meses.forEach((nome, i) => {
-
-    const opcao =
-        document.createElement("option");
-
-    opcao.value = i + 1;
-
-    opcao.textContent = nome;
-
-    mes.appendChild(opcao);
-
-});
-
-
-/* =====================================
-   DATA ATUAL
-   ===================================== */
-
-const agora = new Date();
-
-mes.value =
-    agora.getMonth() + 1;
-
-ano.value =
-    agora.getFullYear();
-
-
-/* =====================================
-   DADOS LOCAIS
-   ===================================== */
-
-usuario.value =
-    localStorage.getItem("van_usuario") || "";
-
-valor.value =
-    localStorage.getItem("van_valor") || "";
-
-
-/* =====================================
-   DIAS ATUAIS
-   ===================================== */
-
-let diasAtuais = new Set();
-
-
-/* =====================================
-   FORMATAÇÃO DE MOEDA
-   ===================================== */
-
-function moeda(numero) {
-
-    return numero.toLocaleString(
-        "pt-BR",
-        {
-            style: "currency",
-            currency: "BRL"
-        }
-    );
-
-}
-
-
-/* =====================================
-   CARREGAR REGISTRO DO SUPABASE
-   ===================================== */
-
-async function carregarDoSupabase() {
-
-    const nome =
-        usuario.value.trim();
-
-    const anoSelecionado =
-        parseInt(ano.value);
-
-    const mesSelecionado =
-        parseInt(mes.value);
-
-
-    /* Se ainda não houver nome,
-       não faz consulta */
-
-    if (!nome) {
-
-        diasAtuais = new Set();
-
-        renderizar();
-
-        return;
-
+  function moeda(n) {
+    return Number(n || 0).toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
+  }
+  function mensagem(texto, area="status") { $(area).textContent = texto; }
+  function renderizar() {
+    const anoSel = parseInt($("ano").value,10) || agora.getFullYear();
+    const mesSel = (parseInt($("mes").value,10) || 1)-1;
+    $("calendario").innerHTML = "";
+    const primeiro = new Date(anoSel,mesSel,1).getDay();
+    const qtd = new Date(anoSel,mesSel+1,0).getDate();
+    for(let i=0;i<primeiro;i++){const b=document.createElement("button");b.className="day empty";b.disabled=true;$("calendario").appendChild(b);}
+    for(let dia=1;dia<=qtd;dia++){
+      const b=document.createElement("button");b.className="day";b.textContent=dia;
+      if(diasAtuais.has(dia)) b.classList.add("selected");
+      b.disabled=carregando;
+      b.addEventListener("click",()=>{if(diasAtuais.has(dia))diasAtuais.delete(dia);else diasAtuais.add(dia);renderizar();});
+      $("calendario").appendChild(b);
     }
-
-
-    status.textContent =
-        "Carregando registro...";
-
-
+    const valorDia = parseFloat(String($("valor").value).replace(",", ".")) || 0;
+    $("resumo").textContent = `${diasAtuais.size} dias • ${moeda(diasAtuais.size*valorDia)}`;
+  }
+  function setApp(user) {
+    session = user ? {user} : null;
+    $("loginCard").classList.toggle("hidden",!!user);
+    $("appArea").classList.toggle("hidden",!user);
+    $("emailLogado").textContent = user ? user.email : "";
+    if(!user){diasAtuais=new Set();$("senha").value="";return;}
+  }
+  async function carregar() {
+    if(!session) return;
+    carregando=true; renderizar(); mensagem("Carregando registro...");
+    const uid=session.user.id, anoSel=Number($("ano").value), mesSel=Number($("mes").value);
     try {
-
-        const busca =
-            `${SUPABASE_URL}` +
-            `van_registros` +
-            `?usuario=eq.${encodeURIComponent(nome)}` +
-            `&ano=eq.${anoSelecionado}` +
-            `&mes=eq.${mesSelecionado}` +
-            `&select=valor_dia,dias`;
-
-
-        const resposta =
-            await fetch(
-                busca,
-                {
-                    method: "GET",
-
-                    headers: {
-                        "apikey":
-                            SUPABASE_ANON_KEY,
-
-                        "Authorization":
-                            `Bearer ${SUPABASE_ANON_KEY}`
-                    }
-                }
-            );
-
-
-        if (!resposta.ok) {
-
-            const erro =
-                await resposta.text();
-
-            throw new Error(
-                erro ||
-                "Erro ao consultar o Supabase."
-            );
-
-        }
-
-
-        const registros =
-            await resposta.json();
-
-
-        /* ============================
-           REGISTRO ENCONTRADO
-           ============================ */
-
-        if (registros.length > 0) {
-
-            const registro =
-                registros[0];
-
-
-            /* Carrega valor por dia */
-
-            if (
-                registro.valor_dia !== null &&
-                registro.valor_dia !== undefined
-            ) {
-
-                valor.value =
-                    registro.valor_dia;
-
-                localStorage.setItem(
-                    "van_valor",
-                    registro.valor_dia
-                );
-
-            }
-
-
-            /* Carrega dias */
-
-            if (
-                Array.isArray(
-                    registro.dias
-                )
-            ) {
-
-                diasAtuais =
-                    new Set(
-                        registro.dias.map(
-                            Number
-                        )
-                    );
-
-            } else {
-
-                diasAtuais =
-                    new Set();
-
-            }
-
-
-            status.textContent =
-                "Registro carregado.";
-
-        }
-
-
-        /* ============================
-           NENHUM REGISTRO
-           ============================ */
-
-        else {
-
-            diasAtuais =
-                new Set();
-
-            status.textContent =
-                "";
-
-        }
-
-
-        renderizar();
-
-    }
-
-    catch (erro) {
-
-        console.error(
-            "Erro ao carregar:",
-            erro
-        );
-
-        diasAtuais =
-            new Set();
-
-        status.textContent =
-            "Erro ao carregar o registro.";
-
-        renderizar();
-
-    }
-
-}
-
-
-/* =====================================
-   RENDERIZAR CALENDÁRIO
-   ===================================== */
-
-function renderizar() {
-
-    const anoSelecionado =
-        parseInt(ano.value) ||
-        agora.getFullYear();
-
-    const mesSelecionado =
-        parseInt(mes.value) - 1;
-
-
-    calendario.innerHTML = "";
-
-
-    const primeiroDia =
-        new Date(
-            anoSelecionado,
-            mesSelecionado,
-            1
-        ).getDay();
-
-
-    const quantidadeDias =
-        new Date(
-            anoSelecionado,
-            mesSelecionado + 1,
-            0
-        ).getDate();
-
-
-    /* Espaços antes do primeiro dia */
-
-    for (
-        let i = 0;
-        i < primeiroDia;
-        i++
-    ) {
-
-        const vazio =
-            document.createElement("button");
-
-        vazio.className =
-            "day empty";
-
-        vazio.disabled = true;
-
-        calendario.appendChild(vazio);
-
-    }
-
-
-    /* Dias do mês */
-
-    for (
-        let dia = 1;
-        dia <= quantidadeDias;
-        dia++
-    ) {
-
-        const botao =
-            document.createElement("button");
-
-        botao.className =
-            "day";
-
-        botao.textContent =
-            dia;
-
-
-        if (
-            diasAtuais.has(dia)
-        ) {
-
-            botao.classList.add(
-                "selected"
-            );
-
-        }
-
-
-        botao.onclick =
-            function() {
-
-                if (
-                    diasAtuais.has(dia)
-                ) {
-
-                    diasAtuais.delete(dia);
-
-                } else {
-
-                    diasAtuais.add(dia);
-
-                }
-
-
-                renderizar();
-
-            };
-
-
-        calendario.appendChild(botao);
-
-    }
-
-
-    /* Total */
-
-    const valorDia =
-        parseFloat(
-            String(valor.value)
-                .replace(",", ".")
-        ) || 0;
-
-
-    const total =
-        diasAtuais.size * valorDia;
-
-
-    resumo.textContent =
-        `${diasAtuais.size} dias • ${moeda(total)}`;
-
-}
-
-
-/* =====================================
-   NOME
-   ===================================== */
-
-usuario.addEventListener(
-    "input",
-    function() {
-
-        localStorage.setItem(
-            "van_usuario",
-            usuario.value
-        );
-
-    }
-);
-
-
-/* =====================================
-   NOME - AO SAIR DO CAMPO
-   ===================================== */
-
-usuario.addEventListener(
-    "change",
-    carregarDoSupabase
-);
-
-
-/* =====================================
-   VALOR
-   ===================================== */
-
-valor.addEventListener(
-    "input",
-    function() {
-
-        localStorage.setItem(
-            "van_valor",
-            valor.value
-        );
-
-        renderizar();
-
-    }
-);
-
-
-/* =====================================
-   MÊS
-   ===================================== */
-
-mes.addEventListener(
-    "change",
-    carregarDoSupabase
-);
-
-
-/* =====================================
-   ANO
-   ===================================== */
-
-ano.addEventListener(
-    "change",
-    carregarDoSupabase
-);
-
-
-/* =====================================
-   SALVAR NO SUPABASE
-   ===================================== */
-
-salvar.addEventListener(
-    "click",
-    async function() {
-
-        const nome =
-            usuario.value.trim();
-
-        const anoSelecionado =
-            parseInt(ano.value);
-
-        const mesSelecionado =
-            parseInt(mes.value);
-
-        const valorDia =
-            parseFloat(
-                String(valor.value)
-                    .replace(",", ".")
-            ) || 0;
-
-        const dias =
-            [...diasAtuais]
-                .sort(
-                    (a, b) => a - b
-                );
-
-
-        /* Validações */
-
-        if (!nome) {
-
-            status.textContent =
-                "Digite seu nome.";
-
-            return;
-
-        }
-
-
-        if (valorDia <= 0) {
-
-            status.textContent =
-                "Digite o valor da van por dia.";
-
-            return;
-
-        }
-
-
-        if (dias.length === 0) {
-
-            status.textContent =
-                "Marque pelo menos um dia.";
-
-            return;
-
-        }
-
-
-        status.textContent =
-            "Salvando...";
-
-        salvar.disabled = true;
-
-
-        try {
-
-            /* ============================
-               PROCURAR REGISTRO EXISTENTE
-               ============================ */
-
-            const busca =
-                `${SUPABASE_URL}` +
-                `van_registros` +
-                `?usuario=eq.${encodeURIComponent(nome)}` +
-                `&ano=eq.${anoSelecionado}` +
-                `&mes=eq.${mesSelecionado}` +
-                `&select=id`;
-
-
-            const respostaBusca =
-                await fetch(
-                    busca,
-                    {
-                        method: "GET",
-
-                        headers: {
-
-                            "apikey":
-                                SUPABASE_ANON_KEY,
-
-                            "Authorization":
-                                `Bearer ${SUPABASE_ANON_KEY}`
-
-                        }
-
-                    }
-                );
-
-
-            if (!respostaBusca.ok) {
-
-                const erro =
-                    await respostaBusca.text();
-
-                throw new Error(
-                    erro ||
-                    "Erro ao consultar o Supabase."
-                );
-
-            }
-
-
-            const existentes =
-                await respostaBusca.json();
-
-
-            /* ============================
-               DADOS PARA SALVAR
-               ============================ */
-
-            const dados = {
-
-                usuario:
-                    nome,
-
-                ano:
-                    anoSelecionado,
-
-                mes:
-                    mesSelecionado,
-
-                valor_dia:
-                    valorDia,
-
-                dias:
-                    dias
-
-            };
-
-
-            /* ============================
-               ATUALIZAR
-               ============================ */
-
-            if (
-                existentes.length > 0
-            ) {
-
-                const id =
-                    existentes[0].id;
-
-
-                const respostaAtualizacao =
-                    await fetch(
-                        `${SUPABASE_URL}van_registros?id=eq.${id}`,
-                        {
-
-                            method: "PATCH",
-
-                            headers: {
-
-                                "apikey":
-                                    SUPABASE_ANON_KEY,
-
-                                "Authorization":
-                                    `Bearer ${SUPABASE_ANON_KEY}`,
-
-                                "Content-Type":
-                                    "application/json",
-
-                                "Prefer":
-                                    "return=minimal"
-
-                            },
-
-                            body:
-                                JSON.stringify(
-                                    dados
-                                )
-
-                        }
-                    );
-
-
-                if (
-                    !respostaAtualizacao.ok
-                ) {
-
-                    const erro =
-                        await respostaAtualizacao.text();
-
-                    throw new Error(
-                        erro ||
-                        "Erro ao atualizar o registro."
-                    );
-
-                }
-
-
-                status.textContent =
-                    "Registro atualizado com sucesso!";
-
-            }
-
-
-            /* ============================
-               CRIAR NOVO
-               ============================ */
-
-            else {
-
-                const respostaCriacao =
-                    await fetch(
-                        `${SUPABASE_URL}van_registros`,
-                        {
-
-                            method: "POST",
-
-                            headers: {
-
-                                "apikey":
-                                    SUPABASE_ANON_KEY,
-
-                                "Authorization":
-                                    `Bearer ${SUPABASE_ANON_KEY}`,
-
-                                "Content-Type":
-                                    "application/json",
-
-                                "Prefer":
-                                    "return=minimal"
-
-                            },
-
-                            body:
-                                JSON.stringify(
-                                    dados
-                                )
-
-                        }
-                    );
-
-
-                if (
-                    !respostaCriacao.ok
-                ) {
-
-                    const erro =
-                        await respostaCriacao.text();
-
-                    throw new Error(
-                        erro ||
-                        "Erro ao criar o registro."
-                    );
-
-                }
-
-
-                status.textContent =
-                    "Registro salvo com sucesso!";
-
-            }
-
-        }
-
-        catch (erro) {
-
-            console.error(
-                "Erro:",
-                erro
-            );
-
-            status.textContent =
-                "Erro ao salvar. Veja o Console (F12).";
-
-        }
-
-        finally {
-
-            salvar.disabled =
-                false;
-
-        }
-
-    }
-);
-
-
-/* =====================================
-   LIMPAR
-   ===================================== */
-
-limpar.addEventListener(
-    "click",
-    async function() {
-
-        if (
-            !confirm(
-                "Limpar as marcações deste mês?"
-            )
-        ) {
-
-            return;
-
-        }
-
-
-        const nome =
-            usuario.value.trim();
-
-        const anoSelecionado =
-            parseInt(ano.value);
-
-        const mesSelecionado =
-            parseInt(mes.value);
-
-
-        if (!nome) {
-
-            status.textContent =
-                "Digite seu nome.";
-
-            return;
-
-        }
-
-
-        status.textContent =
-            "Limpando...";
-
-
-        try {
-
-            const busca =
-                `${SUPABASE_URL}` +
-                `van_registros` +
-                `?usuario=eq.${encodeURIComponent(nome)}` +
-                `&ano=eq.${anoSelecionado}` +
-                `&mes=eq.${mesSelecionado}`;
-
-
-            const resposta =
-                await fetch(
-                    busca,
-                    {
-
-                        method: "DELETE",
-
-                        headers: {
-
-                            "apikey":
-                                SUPABASE_ANON_KEY,
-
-                            "Authorization":
-                                `Bearer ${SUPABASE_ANON_KEY}`
-
-                        }
-
-                    }
-                );
-
-
-            if (!resposta.ok) {
-
-                const erro =
-                    await resposta.text();
-
-                throw new Error(
-                    erro ||
-                    "Erro ao excluir."
-                );
-
-            }
-
-
-            diasAtuais =
-                new Set();
-
-
-            renderizar();
-
-
-            status.textContent =
-                "Registro excluído com sucesso!";
-
-        }
-
-        catch (erro) {
-
-            console.error(
-                "Erro:",
-                erro
-            );
-
-            status.textContent =
-                "Erro ao excluir o registro.";
-
-        }
-
-    }
-);
-
-
-/* =====================================
-   INICIAR
-   ===================================== */
-
-renderizar();
-
+      const {data,error}=await db.from("van_registros")
+        .select("id,usuario,valor_dia,dias")
+        .eq("usuario_id",uid).eq("ano",anoSel).eq("mes",mesSel).maybeSingle();
+      if(error) throw error;
+      if(data){
+        $("usuario").value=data.usuario || "";
+        $("valor").value=data.valor_dia ?? "";
+        diasAtuais=new Set(Array.isArray(data.dias)?data.dias.map(Number):[]);
+        mensagem("Registro carregado.");
+      } else {
+        diasAtuais=new Set();
+        mensagem("Nenhum registro salvo para este mês.");
+      }
+    } catch(e) {
+      console.error(e); diasAtuais=new Set();
+      mensagem("Não foi possível carregar. Confira as políticas RLS e tente novamente.");
+    } finally { carregando=false; renderizar(); }
+  }
+  $("entrar").addEventListener("click",async()=>{
+    const email=$("email").value.trim(), password=$("senha").value;
+    if(!email||!password){mensagem("Digite o e-mail e a senha.","loginStatus");return;}
+    $("entrar").disabled=true;mensagem("Entrando...","loginStatus");
+    try{
+      const {data,error}=await db.auth.signInWithPassword({email,password});
+      if(error) throw error;
+      setApp(data.user); mensagem("","loginStatus"); await carregar();
+    }catch(e){console.error(e);mensagem("Não foi possível entrar. Confira o e-mail e a senha.","loginStatus");}
+    finally{$("entrar").disabled=false;}
+  });
+  $("senha").addEventListener("keydown",e=>{if(e.key==="Enter")$("entrar").click();});
+  $("sair").addEventListener("click",async()=>{
+    const {error}=await db.auth.signOut();
+    if(error){console.error(error);mensagem("Erro ao sair.");return;}
+    setApp(null);mensagem("Você saiu da conta.","loginStatus");
+  });
+  $("usuario").addEventListener("input",()=>{});
+  $("valor").addEventListener("input",renderizar);
+  $("mes").addEventListener("change",carregar);
+  $("ano").addEventListener("change",carregar);
+  $("salvar").addEventListener("click",async()=>{
+    if(!session)return;
+    const nome=$("usuario").value.trim();
+    const anoSel=Number($("ano").value), mesSel=Number($("mes").value);
+    const valorDia=parseFloat(String($("valor").value).replace(",", "."))||0;
+    const dias=[...diasAtuais].sort((a,b)=>a-b);
+    if(!nome){mensagem("Digite seu nome.");return;}
+    if(valorDia<=0){mensagem("Digite um valor diário maior que zero.");return;}
+    if(dias.length===0){mensagem("Marque pelo menos um dia.");return;}
+    $("salvar").disabled=true;mensagem("Salvando...");
+    try{
+      const payload={usuario_id:session.user.id,usuario:nome,ano:anoSel,mes:mesSel,valor_dia:valorDia,dias};
+      const {error}=await db.from("van_registros").upsert(payload,{onConflict:"usuario_id,ano,mes"});
+      if(error) throw error;
+      mensagem("Registro salvo com sucesso!");
+    }catch(e){
+      console.error(e);
+      if(e.code==="23505"||String(e.message||"").includes("onConflict")){
+        mensagem("O banco precisa de uma chave única para usuário, ano e mês. Avise-me para configurarmos.");
+      } else {
+        mensagem("Erro ao salvar. Confira a conexão e as políticas RLS.");
+      }
+    }finally{$("salvar").disabled=false;}
+  });
+  $("limpar").addEventListener("click",async()=>{
+    if(!session)return;
+    if(!confirm("Excluir o registro deste mês?"))return;
+    mensagem("Excluindo...");
+    try{
+      const {error}=await db.from("van_registros").delete()
+        .eq("usuario_id",session.user.id).eq("ano",Number($("ano").value)).eq("mes",Number($("mes").value));
+      if(error)throw error;
+      diasAtuais=new Set();renderizar();mensagem("Registro excluído.");
+    }catch(e){console.error(e);mensagem("Erro ao excluir. Confira as políticas RLS.");}
+  });
+
+  (async()=>{
+    const {data,error}=await db.auth.getSession();
+    if(error){console.error(error);return;}
+    if(data.session){setApp(data.session.user);await carregar();}
+    else setApp(null);
+    renderizar();
+  })();
+})();
 </script>
-
 </body>
 </html>
