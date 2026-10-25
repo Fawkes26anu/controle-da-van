@@ -1,217 +1,42 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Controle da Van</title>
 <style>
-*{box-sizing:border-box}
-body{margin:0;background:#101318;color:#f1f5f9;font-family:Arial,sans-serif}
-.container{max-width:560px;margin:auto;padding:20px}
-h1{text-align:center;margin:8px 0 4px;font-size:28px}
-.subtitle{text-align:center;color:#aab4c3;margin-bottom:20px}
-.card{background:#1b222c;border-radius:18px;padding:18px;margin-bottom:16px}
-label{display:block;color:#aab4c3;margin:12px 0 6px}
-input,select{width:100%;padding:13px;border:1px solid #394454;border-radius:10px;background:#101318;color:white;font-size:16px}
-button{cursor:pointer}
-.primary{width:100%;padding:14px;border:0;border-radius:10px;background:#16a36b;color:white;font-size:16px;font-weight:bold;margin-top:16px}
-.primary:hover{background:#138b5b}
-.primary:disabled{opacity:.6;cursor:not-allowed}
-.secondary{width:100%;padding:13px;border:0;border-radius:10px;background:#303946;color:white;font-size:15px;margin-top:10px}
-.summary{text-align:center;color:#6ee7b7;font-size:22px;font-weight:bold;padding-bottom:18px}
-.week,.calendar{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
-.week div{text-align:center;color:#94a3b8;padding:5px}
-.day{border:0;border-radius:10px;background:#111821;color:white;min-height:48px;font-size:15px}
-.day.selected{background:#16a36b;font-weight:bold}
-.day.empty{visibility:hidden}
-.status{text-align:center;margin-top:12px;font-size:14px;min-height:20px;overflow-wrap:anywhere}
-.note{text-align:center;color:#718096;font-size:12px;margin-top:14px}
-.hidden{display:none!important}
-.topline{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}
-.topline .secondary{width:auto;margin:0;padding:10px 12px}
-.small{font-size:13px;color:#aab4c3;overflow-wrap:anywhere}
-h2{font-size:20px;margin:0 0 8px}
+*{box-sizing:border-box}body{margin:0;background:#101318;color:#f1f5f9;font-family:Arial,sans-serif}.container{max-width:700px;margin:auto;padding:20px}h1{text-align:center;margin:8px 0 4px;font-size:28px}.subtitle{text-align:center;color:#aab4c3;margin-bottom:20px}.card{background:#1b222c;border-radius:18px;padding:18px;margin-bottom:16px}label{display:block;color:#aab4c3;margin:12px 0 6px}input,select{width:100%;padding:13px;border:1px solid #394454;border-radius:10px;background:#101318;color:white;font-size:16px}button{cursor:pointer}.primary{width:100%;padding:14px;border:0;border-radius:10px;background:#16a36b;color:white;font-size:16px;font-weight:bold;margin-top:16px}.primary:disabled{opacity:.6;cursor:not-allowed}.secondary{padding:12px;border:0;border-radius:10px;background:#303946;color:white;font-size:15px;margin-top:10px}.summary{text-align:center;color:#6ee7b7;font-size:22px;font-weight:bold;padding-bottom:18px}.week,.calendar{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}.week div{text-align:center;color:#94a3b8;padding:5px}.day{border:0;border-radius:10px;background:#111821;color:white;min-height:48px;font-size:15px}.day.selected{background:#16a36b;font-weight:bold}.day.empty{visibility:hidden}.status{text-align:center;margin-top:12px;font-size:14px;min-height:20px;overflow-wrap:anywhere}.note{text-align:center;color:#718096;font-size:12px;margin-top:14px}.hidden{display:none!important}.topline{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px;flex-wrap:wrap}.small{font-size:13px;color:#aab4c3;overflow-wrap:anywhere}h2{font-size:20px;margin:0 0 8px}.admin-table-wrap{overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:14px}th,td{padding:10px;text-align:left;border-bottom:1px solid #394454;vertical-align:top}th{color:#aab4c3}td button{margin:2px;padding:8px;border:0;border-radius:8px;background:#303946;color:white}td button.danger{background:#8b3038}.pill{display:inline-block;padding:4px 8px;border-radius:20px;background:#153d30;color:#6ee7b7;font-size:12px}
 </style>
 </head>
-<body>
-<div class="container">
-  <h1>🚐 Controle da Van</h1>
-  <p class="subtitle">Marque os dias em que você utilizou a van.</p>
-
-  <section id="loginCard" class="card">
-    <h2>Entrar</h2>
-    <p class="small">Entre com o e-mail e a senha cadastrados no sistema.</p>
-    <label for="email">E-mail</label>
-    <input id="email" type="email" autocomplete="username" placeholder="seuemail@exemplo.com">
-    <label for="senha">Senha</label>
-    <input id="senha" type="password" autocomplete="current-password" placeholder="Sua senha">
-    <button id="entrar" class="primary">Entrar</button>
-    <div id="loginStatus" class="status" role="status"></div>
-    <p class="note">A conta deve ser criada no Supabase pelo administrador.</p>
-  </section>
-
-  <section id="appArea" class="hidden">
-    <div class="topline">
-      <div class="small">Conectado como <strong id="emailLogado"></strong></div>
-      <button id="sair" class="secondary">Sair</button>
-    </div>
-    <div class="card">
-      <label for="usuario">Nome para identificação</label>
-      <input id="usuario" type="text" placeholder="Digite seu nome">
-      <label for="valor">Valor da van por dia (R$)</label>
-      <input id="valor" type="number" step="0.01" min="0" placeholder="Ex.: 10,00">
-      <label for="mes">Mês</label>
-      <select id="mes"></select>
-      <label for="ano">Ano</label>
-      <input id="ano" type="number" min="2000" max="2100">
-    </div>
-    <div class="card">
-      <div id="resumo" class="summary">0 dias • R$ 0,00</div>
-      <div class="week"><div>D</div><div>S</div><div>T</div><div>Q</div><div>Q</div><div>S</div><div>S</div></div>
-      <div id="calendario" class="calendar"></div>
-      <button id="salvar" class="primary">Salvar registro</button>
-      <div id="status" class="status" role="status"></div>
-    </div>
-    <button id="limpar" class="secondary">Limpar marcações deste mês</button>
-    <div class="note">Os registros são associados à conta autenticada.</div>
-  </section>
-</div>
-
+<body><div class="container">
+<h1>🚐 Controle da Van</h1><p class="subtitle">Marque os dias em que você utilizou a van.</p>
+<section id="loginCard" class="card"><h2>Entrar</h2><p class="small">Entre com o e-mail e a senha cadastrados no sistema.</p><label for="email">E-mail</label><input id="email" type="email" autocomplete="username" placeholder="seuemail@exemplo.com"><label for="senha">Senha</label><input id="senha" type="password" autocomplete="current-password" placeholder="Sua senha"><button id="entrar" class="primary">Entrar</button><div id="loginStatus" class="status" role="status"></div><p class="note">A conta deve ser criada no Supabase pelo administrador.</p></section>
+<section id="appArea" class="hidden">
+<div class="topline"><div class="small">Conectado como <strong id="emailLogado"></strong> <span id="adminBadge" class="pill hidden">Administrador</span></div><div><button id="adminToggle" class="secondary hidden">Área administrativa</button> <button id="sair" class="secondary">Sair</button></div></div>
+<section id="userArea"><div class="card"><label for="usuario">Nome para identificação</label><input id="usuario" type="text" placeholder="Digite seu nome"><label for="valor">Valor da van por dia (R$)</label><input id="valor" type="number" step="0.01" min="0" placeholder="Ex.: 10,00"><label for="mes">Mês</label><select id="mes"></select><label for="ano">Ano</label><input id="ano" type="number" min="2000" max="2100"></div>
+<div class="card"><div id="resumo" class="summary">0 dias • R$ 0,00</div><div class="week"><div>D</div><div>S</div><div>T</div><div>Q</div><div>Q</div><div>S</div><div>S</div></div><div id="calendario" class="calendar"></div><button id="salvar" class="primary">Salvar registro</button><div id="status" class="status" role="status"></div></div><button id="limpar" class="secondary" style="width:100%">Limpar marcações deste mês</button><div class="note">Os registros são associados à conta autenticada.</div></section>
+<section id="adminArea" class="hidden"><div class="card"><h2>Área administrativa</h2><p class="small">Consulte os registros salvos no sistema. A exclusão é permanente.</p><button id="adminRefresh" class="primary">Atualizar registros</button><div id="adminStatus" class="status" role="status"></div></div><div class="card admin-table-wrap"><table><thead><tr><th>Usuário</th><th>Mês</th><th>Dias</th><th>Valor total</th><th>Ação</th></tr></thead><tbody id="adminRows"><tr><td colspan="5">Carregando...</td></tr></tbody></table></div><button id="backToApp" class="secondary" style="width:100%">Voltar ao controle mensal</button></section>
+</section></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-(() => {
-  // A chave publishable/anon é feita para uso no navegador. A segurança depende das políticas RLS.
-  const SUPABASE_URL = "https://ioyytfxplwtwtejtvwss.supabase.co";
-  const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_Anm5GDdl4ajPU8GlVaaRRQ_A9ioBcMn";
-  const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
-
-  const $ = id => document.getElementById(id);
-  const meses = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
-  meses.forEach((nome,i) => { const o=document.createElement("option"); o.value=i+1; o.textContent=nome; $("mes").appendChild(o); });
-  const agora = new Date();
-  $("mes").value = String(agora.getMonth()+1);
-  $("ano").value = agora.getFullYear();
-
-  let session = null;
-  let diasAtuais = new Set();
-  let carregando = false;
-
-  function moeda(n) {
-    return Number(n || 0).toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
-  }
-  function mensagem(texto, area="status") { $(area).textContent = texto; }
-  function renderizar() {
-    const anoSel = parseInt($("ano").value,10) || agora.getFullYear();
-    const mesSel = (parseInt($("mes").value,10) || 1)-1;
-    $("calendario").innerHTML = "";
-    const primeiro = new Date(anoSel,mesSel,1).getDay();
-    const qtd = new Date(anoSel,mesSel+1,0).getDate();
-    for(let i=0;i<primeiro;i++){const b=document.createElement("button");b.className="day empty";b.disabled=true;$("calendario").appendChild(b);}
-    for(let dia=1;dia<=qtd;dia++){
-      const b=document.createElement("button");b.className="day";b.textContent=dia;
-      if(diasAtuais.has(dia)) b.classList.add("selected");
-      b.disabled=carregando;
-      b.addEventListener("click",()=>{if(diasAtuais.has(dia))diasAtuais.delete(dia);else diasAtuais.add(dia);renderizar();});
-      $("calendario").appendChild(b);
-    }
-    const valorDia = parseFloat(String($("valor").value).replace(",", ".")) || 0;
-    $("resumo").textContent = `${diasAtuais.size} dias • ${moeda(diasAtuais.size*valorDia)}`;
-  }
-  function setApp(user) {
-    session = user ? {user} : null;
-    $("loginCard").classList.toggle("hidden",!!user);
-    $("appArea").classList.toggle("hidden",!user);
-    $("emailLogado").textContent = user ? user.email : "";
-    if(!user){diasAtuais=new Set();$("senha").value="";return;}
-  }
-  async function carregar() {
-    if(!session) return;
-    carregando=true; renderizar(); mensagem("Carregando registro...");
-    const uid=session.user.id, anoSel=Number($("ano").value), mesSel=Number($("mes").value);
-    try {
-      const {data,error}=await db.from("van_registros")
-        .select("id,usuario,valor_dia,dias")
-        .eq("usuario_id",uid).eq("ano",anoSel).eq("mes",mesSel).maybeSingle();
-      if(error) throw error;
-      if(data){
-        $("usuario").value=data.usuario || "";
-        $("valor").value=data.valor_dia ?? "";
-        diasAtuais=new Set(Array.isArray(data.dias)?data.dias.map(Number):[]);
-        mensagem("Registro carregado.");
-      } else {
-        diasAtuais=new Set();
-        mensagem("Nenhum registro salvo para este mês.");
-      }
-    } catch(e) {
-      console.error(e); diasAtuais=new Set();
-      mensagem("Não foi possível carregar. Confira as políticas RLS e tente novamente.");
-    } finally { carregando=false; renderizar(); }
-  }
-  $("entrar").addEventListener("click",async()=>{
-    const email=$("email").value.trim(), password=$("senha").value;
-    if(!email||!password){mensagem("Digite o e-mail e a senha.","loginStatus");return;}
-    $("entrar").disabled=true;mensagem("Entrando...","loginStatus");
-    try{
-      const {data,error}=await db.auth.signInWithPassword({email,password});
-      if(error) throw error;
-      setApp(data.user); mensagem("","loginStatus"); await carregar();
-    }catch(e){console.error(e);mensagem("Não foi possível entrar. Confira o e-mail e a senha.","loginStatus");}
-    finally{$("entrar").disabled=false;}
-  });
-  $("senha").addEventListener("keydown",e=>{if(e.key==="Enter")$("entrar").click();});
-  $("sair").addEventListener("click",async()=>{
-    const {error}=await db.auth.signOut();
-    if(error){console.error(error);mensagem("Erro ao sair.");return;}
-    setApp(null);mensagem("Você saiu da conta.","loginStatus");
-  });
-  $("usuario").addEventListener("input",()=>{});
-  $("valor").addEventListener("input",renderizar);
-  $("mes").addEventListener("change",carregar);
-  $("ano").addEventListener("change",carregar);
-  $("salvar").addEventListener("click",async()=>{
-    if(!session)return;
-    const nome=$("usuario").value.trim();
-    const anoSel=Number($("ano").value), mesSel=Number($("mes").value);
-    const valorDia=parseFloat(String($("valor").value).replace(",", "."))||0;
-    const dias=[...diasAtuais].sort((a,b)=>a-b);
-    if(!nome){mensagem("Digite seu nome.");return;}
-    if(valorDia<=0){mensagem("Digite um valor diário maior que zero.");return;}
-    if(dias.length===0){mensagem("Marque pelo menos um dia.");return;}
-    $("salvar").disabled=true;mensagem("Salvando...");
-    try{
-      const payload={usuario_id:session.user.id,usuario:nome,ano:anoSel,mes:mesSel,valor_dia:valorDia,dias};
-      const {error}=await db.from("van_registros").upsert(payload,{onConflict:"usuario_id,ano,mes"});
-      if(error) throw error;
-      mensagem("Registro salvo com sucesso!");
-    }catch(e){
-      console.error(e);
-      if(e.code==="23505"||String(e.message||"").includes("onConflict")){
-        mensagem("O banco precisa de uma chave única para usuário, ano e mês. Avise-me para configurarmos.");
-      } else {
-        mensagem("Erro ao salvar. Confira a conexão e as políticas RLS.");
-      }
-    }finally{$("salvar").disabled=false;}
-  });
-  $("limpar").addEventListener("click",async()=>{
-    if(!session)return;
-    if(!confirm("Excluir o registro deste mês?"))return;
-    mensagem("Excluindo...");
-    try{
-      const {error}=await db.from("van_registros").delete()
-        .eq("usuario_id",session.user.id).eq("ano",Number($("ano").value)).eq("mes",Number($("mes").value));
-      if(error)throw error;
-      diasAtuais=new Set();renderizar();mensagem("Registro excluído.");
-    }catch(e){console.error(e);mensagem("Erro ao excluir. Confira as políticas RLS.");}
-  });
-
-  (async()=>{
-    const {data,error}=await db.auth.getSession();
-    if(error){console.error(error);return;}
-    if(data.session){setApp(data.session.user);await carregar();}
-    else setApp(null);
-    renderizar();
-  })();
+(()=>{
+const URL="https://ioyytfxplwtwtejtvwss.supabase.co",KEY="sb_publishable_Anm5GDdl4ajPU8GlVaaRRQ_A9ioBcMn",db=window.supabase.createClient(URL,KEY),$=id=>document.getElementById(id);
+const meses=["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"],agora=new Date();
+meses.forEach((n,i)=>{let o=document.createElement("option");o.value=i+1;o.textContent=n;$("mes").appendChild(o)});$("mes").value=agora.getMonth()+1;$("ano").value=agora.getFullYear();
+let user=null,dias=new Set(),busy=false,isAdmin=false;
+const money=n=>Number(n||0).toLocaleString("pt-BR",{style:"currency",currency:"BRL"}),msg=(s,id="status")=>$(id).textContent=s;
+function render(){let y=Number($("ano").value)||agora.getFullYear(),m=(Number($("mes").value)||1)-1;$("calendario").innerHTML="";let first=new Date(y,m,1).getDay(),count=new Date(y,m+1,0).getDate();for(let i=0;i<first;i++){let b=document.createElement("button");b.className="day empty";b.disabled=true;$("calendario").appendChild(b)}for(let d=1;d<=count;d++){let b=document.createElement("button");b.className="day";b.textContent=d;if(dias.has(d))b.classList.add("selected");b.disabled=busy;b.onclick=()=>{dias.has(d)?dias.delete(d):dias.add(d);render()};$("calendario").appendChild(b)}let v=parseFloat(String($("valor").value).replace(",","."))||0;$("resumo").textContent=`${dias.size} dias • ${money(dias.size*v)}`}
+function setApp(u){user=u;$("loginCard").classList.toggle("hidden",!!u);$("appArea").classList.toggle("hidden",!u);$("emailLogado").textContent=u?.email||"";if(!u){dias=new Set();isAdmin=false;$("adminToggle").classList.add("hidden");$("adminBadge").classList.add("hidden");$("adminArea").classList.add("hidden");$("userArea").classList.remove("hidden");$("senha").value=""}}
+async function checkAdmin(){isAdmin=false;if(user){try{let {data,error}=await db.rpc("eh_administrador");if(error)throw error;isAdmin=data===true}catch(e){console.error(e)}}$("adminToggle").classList.toggle("hidden",!isAdmin);$("adminBadge").classList.toggle("hidden",!isAdmin);return isAdmin}
+async function load(){if(!user)return;busy=true;render();msg("Carregando registro...");try{let {data,error}=await db.from("van_registros").select("usuario,valor_dia,dias").eq("usuario_id",user.id).eq("ano",Number($("ano").value)).eq("mes",Number($("mes").value)).maybeSingle();if(error)throw error;if(data){$("usuario").value=data.usuario||"";$("valor").value=data.valor_dia??"";dias=new Set(Array.isArray(data.dias)?data.dias.map(Number):[]);msg("Registro carregado.")}else{dias=new Set();msg("Nenhum registro salvo para este mês.")}}catch(e){console.error(e);dias=new Set();msg("Não foi possível carregar. Confira as políticas RLS.")}finally{busy=false;render()}}
+async function adminLoad(){if(!user||!isAdmin)return;let body=$("adminRows");body.innerHTML="<tr><td colspan='5'>Carregando...</td></tr>";msg("Buscando registros...","adminStatus");try{let {data,error}=await db.from("van_registros").select("id,usuario,usuario_id,ano,mes,valor_dia,dias").order("ano",{ascending:false}).order("mes",{ascending:false});if(error)throw error;body.innerHTML="";if(!data?.length)body.innerHTML="<tr><td colspan='5'>Nenhum registro encontrado.</td></tr>";for(let r of (data||[])){let ds=Array.isArray(r.dias)?r.dias.map(Number):[],tr=document.createElement("tr");for(let val of [r.usuario||"Sem nome",`${meses[Number(r.mes)-1]||r.mes}/${r.ano}`,ds.sort((a,b)=>a-b).join(", ")||"0",money(ds.length*Number(r.valor_dia||0))]){let td=document.createElement("td");td.textContent=val;tr.appendChild(td)}let td=document.createElement("td"),del=document.createElement("button");del.textContent="Excluir";del.className="danger";del.onclick=async()=>{if(!confirm(`Excluir o registro de ${r.usuario||"usuário"} de ${meses[Number(r.mes)-1]||r.mes}/${r.ano}? Esta ação é permanente.`))return;del.disabled=true;let {error}=await db.from("van_registros").delete().eq("id",r.id);if(error){console.error(error);msg("Não foi possível excluir. Confira as políticas RLS.","adminStatus");del.disabled=false}else{msg("Registro excluído.","adminStatus");adminLoad()}};td.appendChild(del);tr.appendChild(td);body.appendChild(tr)}msg(`${data?.length||0} registro(s) encontrado(s).`,"adminStatus")}catch(e){console.error(e);body.innerHTML="<tr><td colspan='5'>Não foi possível carregar os registros.</td></tr>";msg("Falha ao consultar. Verifique as políticas administrativas.","adminStatus")}}
+$("entrar").onclick=async()=>{let email=$("email").value.trim(),password=$("senha").value;if(!email||!password){msg("Digite o e-mail e a senha.","loginStatus");return}$("entrar").disabled=true;msg("Entrando...","loginStatus");try{let {data,error}=await db.auth.signInWithPassword({email,password});if(error)throw error;setApp(data.user);msg("","loginStatus");await checkAdmin();await load()}catch(e){console.error(e);msg("Não foi possível entrar. Confira o e-mail e a senha.","loginStatus")}finally{$("entrar").disabled=false}};
+$("senha").onkeydown=e=>{if(e.key==="Enter")$("entrar").click()};
+$("sair").onclick=async()=>{let {error}=await db.auth.signOut();if(error){msg("Erro ao sair.");return}setApp(null);msg("Você saiu da conta.","loginStatus")};
+$("valor").oninput=render;$("mes").onchange=load;$("ano").onchange=load;
+$("salvar").onclick=async()=>{if(!user)return;let nome=$("usuario").value.trim(),y=Number($("ano").value),m=Number($("mes").value),v=parseFloat(String($("valor").value).replace(",","."))||0,ds=[...dias].sort((a,b)=>a-b);if(!nome)return msg("Digite seu nome.");if(v<=0)return msg("Digite um valor diário maior que zero.");if(!ds.length)return msg("Marque pelo menos um dia.");$("salvar").disabled=true;msg("Salvando...");try{let {error}=await db.from("van_registros").upsert({usuario_id:user.id,usuario:nome,ano:y,mes:m,valor_dia:v,dias:ds},{onConflict:"usuario_id,ano,mes"});if(error)throw error;msg("Registro salvo com sucesso!")}catch(e){console.error(e);msg("Erro ao salvar. Confira conexão, chave única e políticas RLS.")}finally{$("salvar").disabled=false}};
+$("limpar").onclick=async()=>{if(!user||!confirm("Excluir o registro deste mês?"))return;msg("Excluindo...");try{let {error}=await db.from("van_registros").delete().eq("usuario_id",user.id).eq("ano",Number($("ano").value)).eq("mes",Number($("mes").value));if(error)throw error;dias=new Set();render();msg("Registro excluído.")}catch(e){console.error(e);msg("Erro ao excluir. Confira as políticas RLS.")}};
+$("adminToggle").onclick=async()=>{if(!await checkAdmin()){msg("Sua conta não tem autorização administrativa.","adminStatus");return}$("userArea").classList.add("hidden");$("adminArea").classList.remove("hidden");await adminLoad()};
+$("adminRefresh").onclick=adminLoad;$("backToApp").onclick=()=>{$("adminArea").classList.add("hidden");$("userArea").classList.remove("hidden")};
+(async()=>{let {data,error}=await db.auth.getSession();if(error){console.error(error);return}if(data.session){setApp(data.session.user);await checkAdmin();await load()}else setApp(null);render()})();
 })();
-</script>
-</body>
-</html>
+</script></body></html>
