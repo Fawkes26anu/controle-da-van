@@ -58,8 +58,20 @@ td button.danger{background:#8b3038}
 <label for="senha">Senha</label>
 <input id="senha" type="password" autocomplete="current-password" placeholder="Sua senha">
 <button id="entrar" class="primary">Entrar</button>
+<button id="esqueciSenha" class="secondary" style="width:100%">Esqueci minha senha</button>
 <div id="loginStatus" class="status" role="status"></div>
 <p class="note">A conta deve ser criada no Supabase pelo administrador.</p>
+</section>
+
+<section id="resetCard" class="card hidden">
+  <h2>Cadastrar nova senha</h2>
+  <p class="small">Digite e confirme sua nova senha.</p>
+  <label for="novaSenha">Nova senha</label>
+  <input id="novaSenha" type="password" autocomplete="new-password" placeholder="Digite a nova senha">
+  <label for="confirmarSenha">Confirmar nova senha</label>
+  <input id="confirmarSenha" type="password" autocomplete="new-password" placeholder="Digite novamente">
+  <button id="salvarNovaSenha" class="primary">Salvar nova senha</button>
+  <div id="resetStatus" class="status" role="status"></div>
 </section>
 
 <section id="appArea" class="hidden">
@@ -157,6 +169,16 @@ $("ano").value=agora.getFullYear();
 let user=null,dias=new Set(),busy=false,isAdmin=false;
 const money=n=>Number(n||0).toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
 const msg=(s,id="status")=>$(id).textContent=s;
+
+// Quando o usuário abre o link de recuperação recebido por e-mail:
+db.auth.onAuthStateChange((event, session) => {
+  if (event === "PASSWORD_RECOVERY" && session?.user) {
+    setApp(session.user);
+    $("appArea").classList.add("hidden");
+    $("resetCard").classList.remove("hidden");
+    msg("Digite sua nova senha.", "resetStatus");
+  }
+});
 
 function render(){
  let y=Number($("ano").value)||agora.getFullYear();
@@ -372,6 +394,49 @@ async function adminLoad(){
   msg("Falha ao consultar. Verifique as políticas administrativas.","adminStatus");
  }
 }
+
+$("esqueciSenha").onclick=async()=>{
+  const email=$("email").value.trim();
+  if(!email)return msg("Digite seu e-mail primeiro.","loginStatus");
+  $("esqueciSenha").disabled=true;
+  msg("Enviando link de recuperação...","loginStatus");
+  try{
+    const {error}=await db.auth.resetPasswordForEmail(email,{
+      redirectTo:window.location.origin
+    });
+    if(error)throw error;
+    msg("Se o e-mail estiver cadastrado, enviaremos um link de recuperação. Confira também o spam.","loginStatus");
+  }catch(e){
+    console.error(e);
+    msg("Não foi possível enviar o link. Confira as configurações de URL e e-mail do Supabase.","loginStatus");
+  }finally{
+    $("esqueciSenha").disabled=false;
+  }
+};
+
+$("salvarNovaSenha").onclick=async()=>{
+  const senha=$("novaSenha").value;
+  const confirmar=$("confirmarSenha").value;
+  if(senha.length<6)return msg("A senha precisa ter pelo menos 6 caracteres.","resetStatus");
+  if(senha!==confirmar)return msg("As senhas não coincidem.","resetStatus");
+  $("salvarNovaSenha").disabled=true;
+  msg("Atualizando senha...","resetStatus");
+  try{
+    const {error}=await db.auth.updateUser({password:senha});
+    if(error)throw error;
+    $("resetCard").classList.add("hidden");
+    $("novaSenha").value="";
+    $("confirmarSenha").value="";
+    msg("Senha alterada com sucesso! Você já pode entrar com a nova senha.","loginStatus");
+    await db.auth.signOut();
+    setApp(null);
+  }catch(e){
+    console.error(e);
+    msg("Não foi possível alterar a senha. Solicite um novo link de recuperação.","resetStatus");
+  }finally{
+    $("salvarNovaSenha").disabled=false;
+  }
+};
 
 $("entrar").onclick=async()=>{
  let email=$("email").value.trim(),password=$("senha").value;
